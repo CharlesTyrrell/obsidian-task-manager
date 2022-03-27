@@ -1,9 +1,54 @@
 import * as path from 'path';
 import * as fs from 'fs';
-import { App } from 'obsidian';
+import { App, TFile, TFolder, stringifyYaml, TAbstractFile  } from 'obsidian';
 import { useApp } from "./hook";
-export function my_function() {
-	return 5;
+import fm from "front-matter";
+import { Pair, Scalar } from 'yaml/types';
+const yaml = require('js-yaml');
+const YAML = require('yaml')
+//import yaml from 
+
+export function get_files_in_folder() {
+	process.chdir(this.app.vault.adapter.basePath);
+
+	var parent_folder_path: string = "/";
+	console.log(fs.lstatSync(path.normalize(parent_folder_path)).isDirectory())
+
+	var parent_folder = this.app.vault.getAbstractFileByPath(parent_folder_path);
+
+	let file_array: TFile[] = [];
+
+	get_files_in_folder(parent_folder, file_array)
+
+	console.log(fs.lstatSync(path.normalize(file_array[0].path)).isFile())
+	console.log(file_array.length);
+
+	return;
+	
+	//console.log(stringifyYaml))
+	
+
+
+
+	function get_files_in_folder(folder: any , file_array: TFile[]) {
+		var folder_children = folder.children;
+
+		for (var i = 0; i < folder_children.length; i++) {
+
+			if (fs.lstatSync(path.normalize(folder_children[i].path)).isFile()) {
+				//console.log(folder_children[i].name)
+				let really_file = <TFile>folder_children[i];
+				file_array.push(really_file);
+			}
+
+			else if (fs.lstatSync(path.normalize(folder_children[i].path)).isDirectory()) {
+				//console.log(folder_children[i].name);
+				let really_folder = <TFolder>folder_children[i];
+				get_files_in_folder(really_folder, file_array);
+			}
+
+		}
+	}
 /* //THIS IS MY TEST THINGY
 	process.chdir(app.vault.adapter.basePath);//very important to keep
 
@@ -30,23 +75,7 @@ export function my_function() {
 	//
 	
 	//internal functions
-	function get_files_in_folder(folder, file_array){
-		var folder_children = folder.children;
-
-		for(var i = 0; i < folder_children.length; i++){
-			
-			if(fs.lstatSync(path.normalize(folder_children[i].path)).isFile()){
-				//console.log(folder_children[i].name)
-				file_array.push(folder_children[i]);
-			}
 	
-			else if(fs.lstatSync(path.normalize(folder_children[i].path)).isDirectory()){
-				//console.log(folder_children[i].name);
-				get_files_in_folder(folder_children[i], file_array);
-			}
-	
-		}
-	}
 
 	function parse_yaml(string, yaml_string){
 		
@@ -72,6 +101,52 @@ export function my_function() {
 	}
 */ //THIS IS MY TEST THINGY
 }
+
+
+export function get_yaml_from_files_test() {//node.js front-matter implementation of the script
+	
+	let all_files: TFile[] = this.app.vault.getFiles();
+	const file = fs.readFileSync(all_files[0].path, 'utf8');
+
+	//var content = fm(file);
+	//console.log(fm.test(file));
+	let content = fm(file);// this returns a dictionary basically
+	let array = [1,2,3,4,5]
+	console.log(array);
+	//console.log(content.attributes["hello"]);
+	//console.log(file);
+
+}
+
+export function get_yaml_from_files() { //node.js yaml implementation of the script
+	process.chdir(this.app.vault.adapter.basePath);
+	//inefficient, looks through all of the files every time
+	let file_yaml_dict: { [key: string]: Pair[] } = {}; //Key is file name, content is a dictionary of yaml attiributes
+	let all_files: TFile[] = this.app.vault.getFiles();
+	//console.log(all_files)
+
+	for (let i = 0; i < all_files.length; i++) {
+		let file: TFile = all_files[i];
+		let yaml_doc = YAML.parseAllDocuments(fs.readFileSync(path.normalize(file.path), 'utf8'))[0];
+		
+		if (yaml_doc.contents!= null) {
+			//console.log(yaml_doc.contents);
+			file_yaml_dict[file.name] = yaml_doc.contents.items; //.items returns an array of the PAIR class
+			
+		}
+		
+	}
+
+
+
+	return file_yaml_dict; //returns a dictionary
+						   //key is file name
+						   //value is array of PAIR types, 
+						   //each PAIR is a YAML class with three attributes,
+						   //1. key, value and type (key and value are the important ones)
+
+}
+
 
 export let myAdd: (baseValue: number, increment: number) => number = function (
 	x: number,
@@ -183,5 +258,57 @@ fs.writeFile('', "Welcome to TUTORIALANDEXAMPLE", function(err){
 		}
 	}
 	
+}
+*/
+/*
+export function get_yaml_from_files() {
+	//inefficient, looks through all of the files every time
+	let file_yaml_array: { [key: string]: {} } = {}; //Key is file name, content is a dictionary of yaml attiributes
+	let all_files: TFile[] = this.app.vault.getFiles();
+	console.log("--------");
+	
+	yaml.loadAll(fs.readFileSync(all_files[0].path, 'utf8'), function (doc :any) {
+		console.log(doc);
+	});
+	
+//console.log(YAML.parseAllDocuments(fs.readFileSync(all_files[0].path, 'utf8'))[0].contents.items[0].key.value);
+console.log("--------");
+for (let i = 0; i < all_files.length; i++) {
+	let file = fs.readFileSync(all_files[i].path, 'utf8'); //creates string
+	let content = fm(file).attributes;// this returns a dictionary basically
+
+	file_yaml_array[all_files[i].name] = content;
+	console.log(file_yaml_array[all_files[i].name]);
+
+}
+	//console.log(file);
+
+	//return file_yaml_array;
+
+}
+*/
+
+/*
+ export function get_yaml_from_files() {
+	//inefficient, looks through all of the files every time
+	let file_yaml_dict: { [key: string]: Pair[] } = {}; //Key is file name, content is a dictionary of yaml attiributes
+	let all_files: TFile[] = this.app.vault.getFiles();
+
+
+	for (let i = 0; i < all_files.length; i++) {
+		let file: TFile = all_files[i];
+		let yaml_doc = YAML.parseAllDocuments(fs.readFileSync(file.path, 'utf8'))[0];
+		console.log(yaml_doc.contents.items);
+		file_yaml_dict[file.name] = yaml_doc.contents.items; //.items returns an array of the PAIR class
+
+
+	}
+
+	return file_yaml_dict; //returns a dictionary
+						   //key is file name
+						   //value is array of PAIR types,
+						   //each PAIR is a YAML class with three attributes,
+						   //1. key, value and type (key and value are the important ones)
+
 }
 */
