@@ -1,15 +1,19 @@
 import * as React from "react";
-
+import * as path from 'path';
+import * as fs from 'fs';
+import { App, TFile, TFolder, stringifyYaml, TAbstractFile  } from 'obsidian';
 import { useApp } from "hook";
-import { myAdd, return_vault_name} from "TestScript"
+import { myAdd, return_vault_name, get_yaml_from_file, get_body_from_file} from "TestScript"
 
 import { useState } from 'react';
 import { Pair } from "yaml/types";
 
+import * as YAML from 'yaml'
+
 export const ReactView = (props: any) => {
 	
 	
-	return get_task_html_element(props);
+	return get_tasK_day_schedule(props);
 };
 
 function print_props(props: any) {
@@ -17,10 +21,127 @@ function print_props(props: any) {
 
 }
 
-function get_task_html_element(props : any) {
+function get_tasK_day_schedule(props : any){
+	process.chdir(this.app.vault.adapter.basePath);
+	const table_style  = {
+		container: {
+			minWidth: "50%",
+			
+		} as React.CSSProperties,
+	  };
+	const task_name_style = {
+		container: {
+			textAlign : "left",
+			paddingLeft : "5%",
+			//padding : "5%"
+			
+		} as React.CSSProperties,
+	  };
+	const task_name_box_style = {
+		container: {
+			textAlign : "left",
+			//paddingLeft : "5%",
+			//margin : "110%"
+			
+		} as React.CSSProperties,
+	  };
+	let all_files: TFile[] = this.app.vault.getFiles();
+	//console.log(all_files)
+	let task_schedule_list = [];
 
+	for (let i = 0; i < all_files.length; i++) {
+		let file: TFile = all_files[i];
+		let yaml_doc = YAML.parseAllDocuments(fs.readFileSync(path.normalize(file.path), 'utf8'))[0];
+		
+		if (yaml_doc.contents!= null) {
+			//console.log(yaml_doc.contents);
+			let task_element = get_task_bullet_element(yaml_doc.contents.items);
+			console.log(task_element)
+			if (task_element != null){
+				task_schedule_list.push(<tr><th>{task_element}</th><th style={task_name_style.container}>{file.basename}</th></tr>);
+			}
+		}
+		
+	}
+	
+
+	return <ul>
+		<h1>March-03-2022</h1>
+    <table style={table_style.container}>
+		
+        <tbody>
+            {task_schedule_list}
+        </tbody>
+    </table>
+</ul>;
+}
+function get_task_bullet_element(file_yaml_list : Pair[]) {
+	
+	//<li>Adele</li> is a component of a bulleted list sorrounded by <ul> for unordered list
+	
+	let yaml_list = file_yaml_list;
+	
+	let task_time = "00:00am-12:12pm";
+	let task_name = "unknown";
+	let task_color = "red";
+	let task_symbol = "question mark face";
+	
+	for (let i = 0; i < yaml_list.length; i++){
+		//console.log(typeof( yaml_list[i].key.value))
+		console.log(yaml_list[i].key.value)
+		if(yaml_list[i].key.value == 'time'){
+			console.log("IT worked")
+		}
+		
+		switch(yaml_list[i].key.value){
+			case 'time':
+				task_time = yaml_list[i].value.value;
+				console.log("IT WORKED")
+				break;
+			case 'name':
+				console.log("IT WORKED")
+				task_name = yaml_list[i].value.value;
+				break;
+			case 'color':
+				console.log("IT WORKED")
+				task_color = yaml_list[i].value.value;
+				break;
+			case 'symbol':
+				console.log("IT WORKED")
+				task_symbol = yaml_list[i].value.value;
+				break;
+		}
+	}
+	const bullet_style = {
+		container: {
+			content : "•",
+			color : task_color,
+			fontSize : "170%",
+			textAlign: "left"
+		
+			
+		} as React.CSSProperties,
+	  };
+
+	const span_style = {
+		container: {
+			color : "white",
+			fontSize : "58%",
+			textAlign: "left"
+			
+			
+			
+		} as React.CSSProperties,
+	  };
+
+	return <li style={bullet_style.container}> <span style={span_style.container}>{task_time}</span></li>
+	
+	
 	/*
-	//props give simply the name of the file
+	//props give simply the name of the file, and location
+
+	//can take a parameter that specifies what view the element is for, such as schedule or week view
+	//kinda want to create a month calendar view as well
 	file_path = get_file_path(props.file_name);
 	file = fs.filereadsync(file_path);
 
@@ -42,12 +163,6 @@ function get_task_html_element(props : any) {
 	need to create a function with a bunch of deeper functions that describes how to get the html element depending
 	on the yaml_tags
 	Then return an html element based on that tag
-	
-	
-
-
-
-
 
 	*/
 	return <h1> hey </h1>

@@ -49,57 +49,6 @@ export function get_files_in_folder() {
 
 		}
 	}
-/* //THIS IS MY TEST THINGY
-	process.chdir(app.vault.adapter.basePath);//very important to keep
-
-	//var parent_folder_path = path.relative(app.vault.adapter.basePath, file_name);
-	var parent_folder_path =  file_name;
-	//return parent_folder_path;
-	var parent_folder = app.vault.getAbstractFileByPath(parent_folder_path);
-	
-	var files = [];
-	
-	get_files_in_folder(parent_folder, files);
-
-	for(var i = 0; i < files.length; i++){
-		console.log(files[i].name);
-		console.log(fs.readFileSync(files[i].path, "utf8"));
-	}
-	
-	
-	
-	///*
-	//for(var i = 0; i < files.length; i++){
-	//	console.log(fs.readFileSync(files[i].path);
-	//}
-	//
-	
-	//internal functions
-	
-
-	function parse_yaml(string, yaml_string){
-		
-		formatted_yaml_header = false;
-		
-		int i;
-		for(i = 0; i < string.length; i++){
-			if(string[i] != '\n' && string[i] != '-'){
-				return false;
-			}	
-			
-			if(string[i] = '-' && string[i + 1] = '-' && 
-			string[i+2] = '-' && string[i+3] = '\n'){
-				formatted_yaml_header = true;
-				break;
-
-			}
-		for(i; 
-			
-		}		
-
-	
-	}
-*/ //THIS IS MY TEST THINGY
 }
 
 
@@ -118,10 +67,10 @@ export function get_yaml_from_files_test() {//node.js front-matter implementatio
 
 }
 
-export function get_yaml_from_files() { //node.js yaml implementation of the script
+export function get_yaml_from_files() : { [key: string]: Pair[] } { //node.js yaml implementation of the script
 	process.chdir(this.app.vault.adapter.basePath);
 	//inefficient, looks through all of the files every time
-	let file_yaml_dict: { [key: string]: Pair[] } = {}; //Key is file name, content is a dictionary of yaml attiributes
+	let file_yaml_dict: { [key: string]: Pair[] } = {}; //Key is file name, content is an array of yaml attiributes
 	let all_files: TFile[] = this.app.vault.getFiles();
 	//console.log(all_files)
 
@@ -131,22 +80,36 @@ export function get_yaml_from_files() { //node.js yaml implementation of the scr
 		
 		if (yaml_doc.contents!= null) {
 			//console.log(yaml_doc.contents);
-			file_yaml_dict[file.name] = yaml_doc.contents.items; //.items returns an array of the PAIR class
+			file_yaml_dict[file.name] = yaml_doc.contents.items; //.items returns an array of the PAIR class { [key: string]: Pair[] }
 			
 		}
 		
 	}
-
-
-
 	return file_yaml_dict; //returns a dictionary
 						   //key is file name
 						   //value is array of PAIR types, 
 						   //each PAIR is a YAML class with three attributes,
 						   //1. key, value and type (key and value are the important ones)
+}
+
+export function get_yaml_from_file(file_path : string) : Pair[] { //node.js yaml implementation of the script
+	process.chdir(this.app.vault.adapter.basePath);
+
+	let file_content: string = fs.readFileSync(path.normalize(file_path), 'utf8')
+	let yaml_doc = YAML.parseAllDocuments(file_content)[0];
+	//console.log(all_files)
+	let file_yaml_tags;
+	if (yaml_doc.contents!= null) {
+		file_yaml_tags = yaml_doc.contents.items; //.items returns an array of the PAIR class
+	}
+
+	return file_yaml_tags; //returns an array of PAIR types
 
 }
 
+export function get_body_from_file(file_path : string) : string {
+	return "get_body_from_file stub";
+};
 
 export let myAdd: (baseValue: number, increment: number) => number = function (
 	x: number,
