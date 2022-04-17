@@ -1,36 +1,34 @@
 import * as React from "react";
 import * as path from 'path';
 import * as fs from 'fs';
-import { App, TFile, TFolder, stringifyYaml, TAbstractFile, Tasks  } from 'obsidian';
-import { writeFile, WriteFileOptions} from 'fs';
-import { useState } from 'react';
-import fm from 'front-matter';
-import { JSXElement } from "@typescript-eslint/types/dist/generated/ast-spec";
-import { JsonObjectExpressionStatement } from "typescript";
-import { format } from "path";
+import { isStringObject } from "util/types";
+import * as moment from "moment";
 const moment = require('moment');
 
-
-//IM USING npm front-matter for this one. SSSOOOO much easier 
-//dont need json-loader, as I can just use file system readfilesync(file_path, 'utf8')
-//export function get_schedule_view(){}
-//formatting of day, formatting of hour (defined in options for plugin)
-
 let hour_format : string = "HH:mm";
-let day_format : string = "MM-DD-YYYY";
+let day_format : string = "YYYY-MM-DD";
 let json_path : string = path.normalize(".obsidian\\plugins\\React_task_manager\\data.json")
-let current_date = "03-27-2022"
+//let start_date = moment()
+
 
 let num_days = 7;
+function get_days(){
+	let days : string[] = [];
 
-//THIS IS THE TEST VIEW!!!!!!!!!!!!!!!!
+	for(let i = 0; i < num_days; i++){
+
+		days.push(moment().add(i, 'days').format(day_format))
+	}
+	return days;
+}
+
 
 export class Schedule extends React.Component<{}, {data: any, days :string[], day_elements: JSX.Element[]}>{
-    constructor(props){
+    constructor(props : any){
         super(props);
         this.state = {
             data: JSON.parse(fs.readFileSync(json_path, 'utf8')),
-            days: ["03-28-2022"],
+            days: get_days(),
 			day_elements: []
         }
 		
@@ -41,19 +39,19 @@ export class Schedule extends React.Component<{}, {data: any, days :string[], da
 	render_day(task_data :any, date : string){
 		return <DaySchedule data = {task_data} date = {date}/>
 	}
+	schedule_style ={
+		container : {
+			marginRight: "15px"
+		}
 
+	}
 	render(){
 		for (let i =0; i < this.state.days.length; i++){
-			//console.log("this is the day: ");
-			//console.log(this.state.days[i]);
-			//console.log("this is the data: ");
-			//console.log(this.state.data[this.state.days[i]]);
-			//console.log("this is all the data: ");
-			//console.log(this.state.data);
+
 			this.state.day_elements.push(this.render_day(this.state.data, this.state.days[i]));
 		}
-		console.log(<div>{this.state.day_elements}</div>)
-		return <div>{this.state.day_elements}</div>
+		
+		return <div style = {this.schedule_style.container}>{this.state.day_elements}</div>
 	}
     
 
@@ -61,7 +59,7 @@ export class Schedule extends React.Component<{}, {data: any, days :string[], da
 
 class DaySchedule extends React.Component<{data: any,date : string}, {tasks : any, folded : boolean}>{
 
-    constructor(props){
+    constructor(props : any){
         super(props);
         this.state = {
             //remember immutability 
@@ -72,7 +70,7 @@ class DaySchedule extends React.Component<{data: any,date : string}, {tasks : an
     }
 	table_style  = {
 		container: {
-			minWidth: "60%",
+			
             textAlign : "center",
 			
 		} as React.CSSProperties,
@@ -91,36 +89,87 @@ class DaySchedule extends React.Component<{data: any,date : string}, {tasks : an
 				}
 			}
 		}
-
+		
 		return day_tasks;
 	}
 	
 	is_on_day(task_file : any) : boolean {
-		let day_of_week = moment(this.props.date, day_format).format("d")
-		//console.log("task_file:")
-		//console.log(task_file)
-		if(this.props.date == task_file.task.schedule.start_date){
+		let day_of_week = moment(this.props.date, day_format).format("dd")//from parent func
+		console.log(task_file.task.schedule.dow[day_of_week])
+		//this checks if today is the start date (works for single day tasks)
+		if(this.props.date ==  task_file.task.schedule.start_date){
 			return true;
 		}
-		return false
-	}
+		//this checks if today is on the dow the task repeats (between start and end date)
 
+		
+
+		
+		if(this.props.date > task_file.task.schedule.start_date && 
+			(task_file.task.schedule.end_date == "" || this.props.date <= task_file.task.schedule.end_date)
+			){
+				if(task_file.task.schedule.dow[day_of_week]){
+					
+					return true;
+				}
+			}
+		
+	}
+	day_style = {
+		container: {
+			
+			
+			width: "270px",
+			marginLeft: "5px",
+			marginTop : " 20px",
+			
+			
+		} as React.CSSProperties,
+	};
 
 	render(){
 		let task_elements: JSX.Element[] = [];
+		let order_tasks : any = [];
 		let task_list = Object.keys(this.state.tasks);
 
 		for (let i =0; i < task_list.length; i++){
-			//console.log("this state :")
-			//console.log(this.state.tasks[task_list[i]])
-			task_elements.push(<TaskElement task_file={this.state.tasks[task_list[i]]} task_name = {task_list[i]}/>)
+			if(this.state.tasks[task_list[i]]["schedule"]["time"] == undefined){
+				//console.log("Undefined time (day schedule render)")
+				continue;
+			}
+
+			//console.log(moment(this.state.tasks[task_list[i]]["schedule"]["time"], "HH:mm"))
+			
+			if(task_elements.length <= 0){
+				task_elements.push(<TaskElement task_file={this.state.tasks[task_list[i]]} task_name = {task_list[i]}/>);
+			}
+			else{
+				let is_after = true;
+				for (let j = 0; j < task_elements.length; j++){
+					//console.log("hetasdf" )
+					//console.log(task_elements[j].props.task_file["schedule"]["time"])
+					//console.log(this.state.tasks[task_list[i]]["schedule"]["time"])
+
+					if(moment(task_elements[j].props.task_file["schedule"]["time"], "HH:mm").isSameOrAfter(moment(this.state.tasks[task_list[i]]["schedule"]["time"], "HH:mm"))){
+						//console.log("inserted task element");
+						task_elements.splice(j, 0, <TaskElement task_file={this.state.tasks[task_list[i]]} task_name = {task_list[i]}/>);
+						is_after = false;
+						break;
+					}
+					
+				}
+				if(is_after == true){
+					task_elements.push(<TaskElement task_file={this.state.tasks[task_list[i]]} task_name = {task_list[i]}/>);
+				}
+			}
 		}
+		
 		return(
-			<body style={this.table_style.container}>
-				<ul style={this.table_style.container}>
+			<body style={this.day_style.container}>
+				<ul>
 					<h1>{this.props.date}</h1>
-					<table style={this.table_style.container}>
-						<tbody style={this.table_style.container}>
+					<table>
+						<tbody>
 							{task_elements}
 						</tbody>
 					</table>
@@ -131,10 +180,9 @@ class DaySchedule extends React.Component<{data: any,date : string}, {tasks : an
 }
 
 class TaskElement extends React.Component<{task_file : any, task_name : string}, {}>{
-	constructor(props){
+	constructor(props : any){
 		super(props);
-		//console.log("hello!!!!!!")
-		//console.log(this.props.task_file)
+	
 	}
 	task_name_style = {
 		container: {
@@ -149,7 +197,7 @@ class TaskElement extends React.Component<{task_file : any, task_name : string},
 		container: {
 			content : "•",
 			color : this.props.task_file.color,
-			fontSize : "170%",
+			
 			textAlign: "center"
 		
 			
@@ -158,8 +206,8 @@ class TaskElement extends React.Component<{task_file : any, task_name : string},
 
 	span_style = {
 		container: {
-			color : "white",
-			fontSize : "58%",
+			
+			
 			textAlign: "center"
 			
 			
@@ -173,7 +221,7 @@ class TaskElement extends React.Component<{task_file : any, task_name : string},
 				<th>
 					<li style={this.bullet_style.container}>
 						<span style={this.span_style.container}>
-							{this.props.task_file.schedule.time}
+							{this.props.task_file.schedule.time} {moment(this.props.task_file.schedule.time, "HH:mm").format('A')}
 						</span>
 					</li>
 				</th>
@@ -183,4 +231,5 @@ class TaskElement extends React.Component<{task_file : any, task_name : string},
 			</tr>)
 	}
 }
+
 
