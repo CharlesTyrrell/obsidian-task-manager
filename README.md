@@ -1,9 +1,9 @@
-## Obsidian Sample Plugin
+## Obsidian Task Manager Plugin
 
-This is a task manager plugin for Obsidian (https://obsidian.md).
+This is a task manager plugin, similar to google calendar, for Obsidian (https://obsidian.md).
 
-This project uses Typescript to provide type checking and documentation.
-The repo depends on the latest plugin API (obsidian.d.ts) in Typescript Definition format, which contains TSDoc comments describing what it does.
+# A WARNING
+This plugin is still in development, and not all features may work properly
 
 ### Quick overview
 
@@ -26,7 +26,8 @@ The goal of this plugin is to add task managing to obsidian
 
 ### Manually installing the plugin
 
-- Copy over `main.js`, `styles.css`, `manifest.json` to your vault `VaultFolder/.obsidian/plugins/your-plugin-id/`.
+- Create a new directory in your plugins folder `YOURVAULT/.obsidian/plugins/React_task_manager/`.
+- Copy over `main.js`, `styles.css`, `manifest.json` 
 
 
 ### API Documentation for obsidian
