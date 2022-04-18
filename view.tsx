@@ -31,12 +31,16 @@ export class ScheduleView extends ItemView {
 
 		initialize_task_data(json_path);
 
+		ReactDOM.render([
+			<div style={header_style.content}> {moment().format("YYYY MMMM")}</div>,
+		], this.containerEl.children[1].createEl('h1'));
 		
 		ReactDOM.render([
+			
 			<div><Schedule/></div>
 		], this.containerEl.children[1].createEl('div'));
 		
-		
+		console.log(this.containerEl.parentElement.className)
 	}
 
 	async onClose() {
@@ -77,7 +81,7 @@ export class ScheduleViewHeader extends ItemView {
 	constructor(leaf: WorkspaceLeaf) {
 		super(leaf);
 	}
-
+	
 	getViewType() {
 		return VIEW_TYPE_SCHEDULE_HEADER;
 	}
@@ -87,7 +91,8 @@ export class ScheduleViewHeader extends ItemView {
 	}
 
 	async onOpen() {
-
+		let HeadLeaf = this.leaf;
+		let BodyLeaf = this.app.workspace.splitActiveLeaf('vertical')
 		ReactDOM.render([
 			<div>{moment().format("YYYY MMMM")}</div>
 		], this.containerEl.children[1].createEl('h1'));
@@ -130,8 +135,6 @@ export class WeekView extends ItemView {
 		ReactDOM.unmountComponentAtNode(this.containerEl.children[1]);
 	}
 }
-
-
 function initialize_task_data(file_path : string){
 
     //this intializes data.json
@@ -165,13 +168,19 @@ function initialize_task_data(file_path : string){
 
 const header_style = {
 	content : {
-		width : "110%",
+		left:"15px",
 		top : "0",
-		
+		textAlign: "center",
+		width : "300px",
 		padding: "30px 0",
-		textAlign : "inherit",
 		position : "fixed",
-		backgroundColor : "var(--background-primary)"
+		backgroundColor : "var(--background-secondary)"
 
 	}as React.CSSProperties,
+}
+const test_style = {
+	content : {
+		color : "Green"
+
+	}
 }

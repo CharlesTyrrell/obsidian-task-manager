@@ -62,9 +62,10 @@ export default class MyPlugin extends Plugin {
 			active: true,
 		});
 		
-		this.app.workspace.revealLeaf(
-		this.app.workspace.getLeavesOfType(VIEW_TYPE_SCHEDULE)[0]
 		
+		this.app.workspace.revealLeaf(
+			this.app.workspace.getLeavesOfType(VIEW_TYPE_SCHEDULE)[0]
+			
 		);
 	}
 }

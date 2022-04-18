@@ -11,7 +11,7 @@ import * as fs from 'fs'
 import { stringify } from "yaml";
 import { isStringObject } from "util/types";
 import { moment, Setting} from "obsidian";
-import {Checkbox} from 'CustomCheckbox'
+
 
 
 

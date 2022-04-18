@@ -2,8 +2,7 @@ import * as React from "react";
 import * as path from 'path';
 import * as fs from 'fs';
 import { isStringObject } from "util/types";
-import * as moment from "moment";
-const moment = require('moment');
+import {moment} from 'obsidian'
 
 let hour_format : string = "HH:mm";
 let day_format : string = "YYYY-MM-DD";
@@ -42,6 +41,7 @@ export class Schedule extends React.Component<{}, {data: any, days :string[], da
 	schedule_style ={
 		container : {
 			
+			marginTop: "75px",
 			left: "0",
 			right:"0",
 			overflow: "auto",
@@ -234,7 +234,7 @@ class TaskElement extends React.Component<{task_file : any, task_name : string},
 				<th>
 					<li style={this.bullet_style.container}>
 						<span style={this.span_style.container}>
-							{this.props.task_file.schedule.time} {moment(this.props.task_file.schedule.time, "HH:mm").format('A')}
+							{moment(this.props.task_file.schedule.time, hour_format).format('h:mm a')}
 						</span>
 					</li>
 				</th>
