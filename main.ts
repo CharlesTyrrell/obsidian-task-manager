@@ -19,11 +19,12 @@ export default class MyPlugin extends Plugin {
 
 	async onload() {
 		process.chdir(this.app.vault.adapter.basePath);
-		await this.loadSettings();
+		
 		this.registerView(
 			VIEW_TYPE_SCHEDULE,
 			(leaf) => new ScheduleView(leaf)
 		);
+
 		// This creates an icon in the left ribbon.
 		const ribbonIconEl = this.addRibbonIcon('calendar', 'Week View', (evt: MouseEvent) => {
 			// Called when the user clicks the icon.
@@ -39,6 +40,7 @@ export default class MyPlugin extends Plugin {
 		// When registering intervals, this function will automatically clear the interval when the plugin is disabled.
 		this.registerInterval(window.setInterval(() => console.log('setInterval'), 5 * 60 * 1000));
 
+		
 		this.addCommand({
 			id: "display-modal",
 			name: "Display modal",
@@ -51,24 +53,18 @@ export default class MyPlugin extends Plugin {
 	onunload() {
 		this.app.workspace.detachLeavesOfType(VIEW_TYPE_SCHEDULE);
 	}
-
+	
 	async activateScheduleView() {
 		this.app.workspace.detachLeavesOfType(VIEW_TYPE_SCHEDULE);
-
+		
 		await this.app.workspace.getRightLeaf(false).setViewState({
 			type: VIEW_TYPE_SCHEDULE,
 			active: true,
 		});
-
+		
 		this.app.workspace.revealLeaf(
-			this.app.workspace.getLeavesOfType(VIEW_TYPE_SCHEDULE)[0]
+		this.app.workspace.getLeavesOfType(VIEW_TYPE_SCHEDULE)[0]
+		
 		);
-	}
-	async loadSettings() {
-		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
-	}
-
-	async saveSettings() {
-		await this.saveData(this.settings);
 	}
 }

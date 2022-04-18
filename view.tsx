@@ -1,17 +1,19 @@
-import { ItemView, WorkspaceLeaf } from "obsidian";
+import { ItemView, WorkspaceLeaf, moment } from "obsidian";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import { AppContext } from "context";
 import { FileSystemAdapter, TFile } from "obsidian";
 export const VIEW_TYPE_SCHEDULE = "schedule-view";
+export const VIEW_TYPE_SCHEDULE_HEADER = "schedule-view-header";
+export const VIEW_TYPE_SCHEDULE_BODY = "schedule-view-body";
 export const VIEW_TYPE_WEEK = "week-view";
 import {Schedule} from 'ScheduleComponent'
 import * as fs from 'fs';
 import fm from 'front-matter';
 import * as path from 'path';
 
-let json_path : string = path.normalize(".obsidian\\plugins\\React_task_manager\\data.json")
 
+let json_path : string = path.normalize(".obsidian\\plugins\\React_task_manager\\data.json")
 export class ScheduleView extends ItemView {
 	constructor(leaf: WorkspaceLeaf) {
 		super(leaf);
@@ -29,10 +31,11 @@ export class ScheduleView extends ItemView {
 
 		initialize_task_data(json_path);
 
-
+		
 		ReactDOM.render([
-			<div><Schedule/></div>, 
-		], this.containerEl.children[1].createEl("div"));
+			<div><Schedule/></div>
+		], this.containerEl.children[1].createEl('div'));
+		
 		
 	}
 
@@ -41,7 +44,62 @@ export class ScheduleView extends ItemView {
 		fs.writeFileSync(json_path, "{}");
 	}
 }
+export class ScheduleViewBody extends ItemView {
+	constructor(leaf: WorkspaceLeaf) {
+		super(leaf);
+	}
 
+	getViewType() {
+		return VIEW_TYPE_SCHEDULE;
+	}
+
+	getDisplayText() {
+		return "Schedule view";
+	}
+
+	async onOpen() {
+		
+		initialize_task_data(json_path);
+
+		ReactDOM.render([
+			<div><Schedule/></div>
+		], this.containerEl.children[1].createEl('div'));
+		
+		
+	}
+
+	async onClose() {
+		ReactDOM.unmountComponentAtNode(this.containerEl.children[1]);
+		fs.writeFileSync(json_path, "{}");
+	}
+}
+export class ScheduleViewHeader extends ItemView {
+	constructor(leaf: WorkspaceLeaf) {
+		super(leaf);
+	}
+
+	getViewType() {
+		return VIEW_TYPE_SCHEDULE_HEADER;
+	}
+
+	getDisplayText() {
+		return "Schedule header";
+	}
+
+	async onOpen() {
+
+		ReactDOM.render([
+			<div>{moment().format("YYYY MMMM")}</div>
+		], this.containerEl.children[1].createEl('h1'));
+		
+		
+	}
+
+	async onClose() {
+		ReactDOM.unmountComponentAtNode(this.containerEl.children[1]);
+		fs.writeFileSync(json_path, "{}");
+	}
+}
 export class WeekView extends ItemView {
 	constructor(leaf: WorkspaceLeaf) {
 		super(leaf);
@@ -68,7 +126,6 @@ export class WeekView extends ItemView {
 			<div><Week/></div>, 
 		], this.containerEl.children[1].createEl("div"));
 	}
-
 	async onClose() {
 		ReactDOM.unmountComponentAtNode(this.containerEl.children[1]);
 	}
@@ -103,4 +160,18 @@ function initialize_task_data(file_path : string){
     
     fs.writeFileSync(file_path, data_string);
 
+}
+
+
+const header_style = {
+	content : {
+		width : "110%",
+		top : "0",
+		
+		padding: "30px 0",
+		textAlign : "inherit",
+		position : "fixed",
+		backgroundColor : "var(--background-primary)"
+
+	}as React.CSSProperties,
 }

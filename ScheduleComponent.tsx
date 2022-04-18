@@ -41,8 +41,13 @@ export class Schedule extends React.Component<{}, {data: any, days :string[], da
 	}
 	schedule_style ={
 		container : {
-			marginRight: "15px"
-		}
+			
+			left: "0",
+			right:"0",
+			overflow: "auto",
+			
+			
+		}as React.CSSProperties,
 
 	}
 	render(){
@@ -51,7 +56,13 @@ export class Schedule extends React.Component<{}, {data: any, days :string[], da
 			this.state.day_elements.push(this.render_day(this.state.data, this.state.days[i]));
 		}
 		
-		return <div style = {this.schedule_style.container}>{this.state.day_elements}</div>
+		return (
+			
+      			<div style={this.schedule_style.container}>
+					  {this.state.day_elements}
+				</div>
+			
+		)		
 	}
     
 
@@ -94,7 +105,7 @@ class DaySchedule extends React.Component<{data: any,date : string}, {tasks : an
 	}
 	
 	is_on_day(task_file : any) : boolean {
-		let day_of_week = moment(this.props.date, day_format).format("dd")//from parent func
+		let day_of_week = moment(this.props.date, day_format).format("dd")//from parent functions
 		console.log(task_file.task.schedule.dow[day_of_week])
 		//this checks if today is the start date (works for single day tasks)
 		if(this.props.date ==  task_file.task.schedule.start_date){
@@ -118,10 +129,10 @@ class DaySchedule extends React.Component<{data: any,date : string}, {tasks : an
 	day_style = {
 		container: {
 			
-			
+			backgroundColor : "var(--background-primary)",
 			width: "270px",
 			marginLeft: "5px",
-			marginTop : " 20px",
+			marginBottom: "10px"
 			
 			
 		} as React.CSSProperties,
@@ -167,7 +178,7 @@ class DaySchedule extends React.Component<{data: any,date : string}, {tasks : an
 		return(
 			<body style={this.day_style.container}>
 				<ul>
-					<h1>{this.props.date}</h1>
+					<h1>{moment(this.props.date, day_format).format("dd, MMMM DD ")}</h1>
 					<table>
 						<tbody>
 							{task_elements}
@@ -196,6 +207,8 @@ class TaskElement extends React.Component<{task_file : any, task_name : string},
     bullet_style = {
 		container: {
 			content : "•",
+			fontSize : "130%",
+			paddingBottom : "3px",
 			color : this.props.task_file.color,
 			
 			textAlign: "center"
@@ -206,8 +219,8 @@ class TaskElement extends React.Component<{task_file : any, task_name : string},
 
 	span_style = {
 		container: {
-			
-			
+			color: "var(--text-normal)",
+			fontSize : "76%",
 			textAlign: "center"
 			
 			
@@ -232,4 +245,32 @@ class TaskElement extends React.Component<{task_file : any, task_name : string},
 	}
 }
 
+const header_style = {
+	content : {
+		width : "110%",
+		fontSize: "30px",
+		top : "0",
+		zIndex: "1",
+		padding: "20px",
+		paddingBottom: "30px 0",
+		textAlign : "inherit",
+		position : "absolute",
+		backgroundColor : "var(--background-secondary)"
 
+	}as React.CSSProperties,
+}
+const page_style = { 
+	constent : {
+    position: "absolute",
+    left: "0",
+    right:"0",
+    overflow: "auto",
+    margin: "44px 0"
+}as React.CSSProperties,
+}
+const main_style = { 
+	content: {
+	overflow : "hidden",
+	overflowY : "scroll"
+}as React.CSSProperties,
+}

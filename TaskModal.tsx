@@ -10,13 +10,16 @@ import fm from "front-matter";
 import * as fs from 'fs'
 import { stringify } from "yaml";
 import { isStringObject } from "util/types";
-import { moment } from "obsidian";
-
+import { moment, Setting} from "obsidian";
+import {Checkbox} from 'CustomCheckbox'
 
 
 
 export class TaskModal extends Modal {
-	constructor(app: App) {
+	result: string;
+  onSubmit: (result: string) => void;
+  
+  constructor(app: App) {
 		super(app);
     
 	}
@@ -30,9 +33,11 @@ export class TaskModal extends Modal {
       //</AppContext.Provider>
 			
 		],this.contentEl)
-		
+    
+    
+    
 	}
-
+  
 	create_task(){
 		
 
@@ -65,11 +70,11 @@ class TaskForm extends React.Component<
       super(props);
       
       this.state = {
-        task_name: 'hello',
-        task_start_date : '2022-03-28',
-        task_end_date: '',
-        task_time: '12:20',
-        color: '',
+        task_name: "",
+        task_start_date : moment().format("YYYY-MM-DD"),
+        task_end_date: moment().add(3, "months").format("YYYY-MM-DD"),
+        task_time: moment().format("HH:mm"),
+        color: "" ,
         dow: {
           Mo : false,
           Tu : false,
@@ -98,17 +103,18 @@ class TaskForm extends React.Component<
       console.log("HELLLOOOOO")
 
       let dow_name : any = event.target.name;
-      let dow_array : any = this.state.dow[dow_name];
-      console.log(dow_array)
-      if(this.state.dow[dow_name]){
-          if(this.state.dow[dow_name] == true){
-            dow_array[dow_name] == false;
-          }
-          else{
-            dow_array[dow_name] == true;
-          }
-        this.setState({dow : dow_array})
+      let dow_array : any = this.state.dow;
+      
+
+      if(dow_array[dow_name] == true){
+        dow_array[dow_name] = false;
       }
+      else{
+        dow_array[dow_name] = true;
+      }
+      console.log(dow_array[dow_name])
+      this.setState({dow : dow_array})
+      
 
 
     }
@@ -150,8 +156,8 @@ class TaskForm extends React.Component<
 
     render() {
       return (
-        <body>
-        <h1>Create New Tas</h1>
+        <div>
+        <h1>Create New Task</h1>
         <form onSubmit={this.handleSubmit}>
           
           <label>
@@ -186,24 +192,33 @@ class TaskForm extends React.Component<
 
           <div/>
 
-          <label>
+          
             Task repeats:
             <div/>
-            <input type="checkbox" name = "Mo" onChange={this.handleDOWChange} />
-            <input type="checkbox" name = "Tu" onChange={this.handleDOWChange} />
-            <input type="checkbox" name = "We" onChange={this.handleDOWChange} />
-            <input type="checkbox" name = "Th" onChange={this.handleDOWChange} />
-            <input type="checkbox" name = "Fr" onChange={this.handleDOWChange} />
-            <input type="checkbox" name = "Sa" onChange={this.handleDOWChange} />
-            <input type="checkbox" name = "Su" onChange={this.handleDOWChange} />
-          </label>
+           
+            <input type="checkbox" name = "Mo" onChange={this.handleDOWChange.bind(this)} />
+            <input type="checkbox" name = "Tu" onChange={this.handleDOWChange.bind(this)} />
+            <input type="checkbox" name = "We" onChange={this.handleDOWChange.bind(this)} />
+            <input type="checkbox" name = "Th" onChange={this.handleDOWChange.bind(this)} />
+            <input type="checkbox" name = "Fr" onChange={this.handleDOWChange.bind(this)} />
+            <input type="checkbox" name = "Sa" onChange={this.handleDOWChange.bind(this)} />
+            <input type="checkbox" name = "Su" onChange={this.handleDOWChange.bind(this)} />
+          
 
           <div/>
 
           <input type="submit" value="Submit" />
           
         </form>
-        </body>
+        </div>
       );
     }
   }
+
+  const checkbox_style = {
+		container: {
+			contain : "A"
+			
+		} as React.CSSProperties,
+	  };
+ 
