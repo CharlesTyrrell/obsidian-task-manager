@@ -2,8 +2,8 @@
 
 This is a task manager plugin, similar to google calendar, for Obsidian (https://obsidian.md).
 
-# A WARNING
 This plugin is still in early development, and most if not all features do not work properly.
+
 
 ### Quick overview
 

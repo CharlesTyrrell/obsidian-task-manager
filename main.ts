@@ -1,5 +1,9 @@
 import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
-import { ExampleView, VIEW_TYPE_EXAMPLE} from './view.js'
+import { text } from 'stream/consumers';
+import { ScheduleView, VIEW_TYPE_SCHEDULE} from './view.js'
+import * as React from 'react'
+import * as ReactDOM from 'react-dom'
+import { TaskModal } from 'TaskModal';
 // Remember to rename these classes and interfaces!
 
 interface MyPluginSettings {
@@ -14,20 +18,18 @@ export default class MyPlugin extends Plugin {
 	settings: MyPluginSettings;
 
 	async onload() {
-		await this.loadSettings();
+		process.chdir(this.app.vault.adapter.basePath);
+		
 		this.registerView(
-			VIEW_TYPE_EXAMPLE,
-			(leaf) => new ExampleView(leaf)
+			VIEW_TYPE_SCHEDULE,
+			(leaf) => new ScheduleView(leaf)
 		);
+
 		// This creates an icon in the left ribbon.
-		const ribbonIconEl = this.addRibbonIcon('dice', 'Sample Plugin', (evt: MouseEvent) => {
+		const ribbonIconEl = this.addRibbonIcon('calendar', 'Week View', (evt: MouseEvent) => {
 			// Called when the user clicks the icon.
-			this.activateExampleView();
+			this.activateScheduleView();
 		});
-
-
-		// This adds a settings tab so the user can configure various aspects of the plugin
-		this.addSettingTab(new SampleSettingTab(this.app, this));
 
 		// If the plugin hooks up any global DOM events (on parts of the app that doesn't belong to this plugin)
 		// Using this function will automatically remove the event listener when this plugin is disabled.
@@ -37,74 +39,33 @@ export default class MyPlugin extends Plugin {
 
 		// When registering intervals, this function will automatically clear the interval when the plugin is disabled.
 		this.registerInterval(window.setInterval(() => console.log('setInterval'), 5 * 60 * 1000));
+
+		
+		this.addCommand({
+			id: "display-modal",
+			name: "Display modal",
+			callback: () => {
+			  new TaskModal(this.app).open();
+			},
+		  });
 	}
 
 	onunload() {
-		this.app.workspace.detachLeavesOfType(VIEW_TYPE_EXAMPLE);
+		this.app.workspace.detachLeavesOfType(VIEW_TYPE_SCHEDULE);
 	}
-
-	async activateExampleView() {
-		this.app.workspace.detachLeavesOfType(VIEW_TYPE_EXAMPLE);
-
+	
+	async activateScheduleView() {
+		this.app.workspace.detachLeavesOfType(VIEW_TYPE_SCHEDULE);
+		
 		await this.app.workspace.getRightLeaf(false).setViewState({
-			type: VIEW_TYPE_EXAMPLE,
+			type: VIEW_TYPE_SCHEDULE,
 			active: true,
 		});
-
+		
+		
 		this.app.workspace.revealLeaf(
-			this.app.workspace.getLeavesOfType(VIEW_TYPE_EXAMPLE)[0]
+			this.app.workspace.getLeavesOfType(VIEW_TYPE_SCHEDULE)[0]
+			
 		);
-	}
-	async loadSettings() {
-		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
-	}
-
-	async saveSettings() {
-		await this.saveData(this.settings);
-	}
-}
-
-class SampleModal extends Modal {
-	constructor(app: App) {
-		super(app);
-	}
-
-	onOpen() {
-		const {contentEl} = this;
-		contentEl.setText('Woah!');
-	}
-
-	onClose() {
-		const {contentEl} = this;
-		contentEl.empty();
-	}
-}
-
-class SampleSettingTab extends PluginSettingTab {
-	plugin: MyPlugin;
-
-	constructor(app: App, plugin: MyPlugin) {
-		super(app, plugin);
-		this.plugin = plugin;
-	}
-
-	display(): void {
-		const {containerEl} = this;
-
-		containerEl.empty();
-
-		containerEl.createEl('h2', {text: 'Settings for my awesome plugin.'});
-
-		new Setting(containerEl)
-			.setName('Setting #1')
-			.setDesc('It\'s a secret')
-			.addText(text => text
-				.setPlaceholder('Enter your secret')
-				.setValue(this.plugin.settings.mySetting)
-				.onChange(async (value) => {
-					console.log('Secret: ' + value);
-					this.plugin.settings.mySetting = value;
-					await this.plugin.saveSettings();
-				}));
 	}
 }

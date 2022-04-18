@@ -1,30 +1,121 @@
-import { ItemView, WorkspaceLeaf } from "obsidian";
+import { ItemView, WorkspaceLeaf, moment } from "obsidian";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import { AppContext } from "context";
-import {ScheduleView} from 'ScheduleView'
-import { FileSystemAdapter } from "obsidian";
-import { ReactView, Example} from "./ReactView";
-import { get_yaml_from_files } from "TestScript"
-export const VIEW_TYPE_EXAMPLE = "example-view";
-import {Schedule} from 'TestView'
+import { FileSystemAdapter, TFile } from "obsidian";
+export const VIEW_TYPE_SCHEDULE = "schedule-view";
+export const VIEW_TYPE_SCHEDULE_HEADER = "schedule-view-header";
+export const VIEW_TYPE_SCHEDULE_BODY = "schedule-view-body";
+export const VIEW_TYPE_WEEK = "week-view";
+import {Schedule} from 'ScheduleComponent'
 import * as fs from 'fs';
 import fm from 'front-matter';
 import * as path from 'path';
 
-let json_path : string = path.normalize(".obsidian\\plugins\\React_task_manager\\data.json")
 
-export class ExampleView extends ItemView {
+let json_path : string = path.normalize(".obsidian\\plugins\\React_task_manager\\data.json")
+export class ScheduleView extends ItemView {
 	constructor(leaf: WorkspaceLeaf) {
 		super(leaf);
 	}
 
 	getViewType() {
-		return VIEW_TYPE_EXAMPLE;
+		return VIEW_TYPE_SCHEDULE;
 	}
 
 	getDisplayText() {
-		return "Example view";
+		return "Schedule view";
+	}
+
+	async onOpen() {
+
+		initialize_task_data(json_path);
+
+		ReactDOM.render([
+			<div style={header_style.content}> {moment().format("YYYY MMMM")}</div>,
+		], this.containerEl.children[1].createEl('h1'));
+		
+		ReactDOM.render([
+			
+			<div><Schedule/></div>
+		], this.containerEl.children[1].createEl('div'));
+		
+		console.log(this.containerEl.parentElement.className)
+	}
+
+	async onClose() {
+		ReactDOM.unmountComponentAtNode(this.containerEl.children[1]);
+		fs.writeFileSync(json_path, "{}");
+	}
+}
+export class ScheduleViewBody extends ItemView {
+	constructor(leaf: WorkspaceLeaf) {
+		super(leaf);
+	}
+
+	getViewType() {
+		return VIEW_TYPE_SCHEDULE;
+	}
+
+	getDisplayText() {
+		return "Schedule view";
+	}
+
+	async onOpen() {
+		
+		initialize_task_data(json_path);
+
+		ReactDOM.render([
+			<div><Schedule/></div>
+		], this.containerEl.children[1].createEl('div'));
+		
+		
+	}
+
+	async onClose() {
+		ReactDOM.unmountComponentAtNode(this.containerEl.children[1]);
+		fs.writeFileSync(json_path, "{}");
+	}
+}
+export class ScheduleViewHeader extends ItemView {
+	constructor(leaf: WorkspaceLeaf) {
+		super(leaf);
+	}
+	
+	getViewType() {
+		return VIEW_TYPE_SCHEDULE_HEADER;
+	}
+
+	getDisplayText() {
+		return "Schedule header";
+	}
+
+	async onOpen() {
+		let HeadLeaf = this.leaf;
+		let BodyLeaf = this.app.workspace.splitActiveLeaf('vertical')
+		ReactDOM.render([
+			<div>{moment().format("YYYY MMMM")}</div>
+		], this.containerEl.children[1].createEl('h1'));
+		
+		
+	}
+
+	async onClose() {
+		ReactDOM.unmountComponentAtNode(this.containerEl.children[1]);
+		fs.writeFileSync(json_path, "{}");
+	}
+}
+export class WeekView extends ItemView {
+	constructor(leaf: WorkspaceLeaf) {
+		super(leaf);
+	}
+
+	getViewType() {
+		return VIEW_TYPE_WEEK;
+	}
+
+	getDisplayText() {
+		return "Week view";
 	}
 
 	async onOpen() {
@@ -34,46 +125,14 @@ export class ExampleView extends ItemView {
 		initialize_task_data(json_path);
 		
 		
-		let file_yaml_dict = get_yaml_from_files();
+		
 		
 		ReactDOM.render([
-			<Schedule/>,
-		], this.containerEl.children[1].createEl("div", { text: "How to Take Smart Notes", cls: "book__title" }));
-
-		
-		//const myelement = (
-		//	<ReactView x={3} />
-		//);
-
-		//ReactDOM.render(myelement, book.createEl("div", { text: "How to Take Smart Notes", cls: "book__title" }));
-
-		
-		//contains file name (string) as key
-		//contains array of Pairs as value
-		
-
-		
-	/*
-	for (let i = 0; i < 10; i++) {
-			this.containerEl.children[i].createEl("div", { text: "How to Take Smart Notes", cls: "book__title" });
-			ReactDOM.render(
-				<AppContext.Provider value={this.app}>
-					<ReactView
-						x={i}
-						y={2}
-						lifestyle={"hello beautiful"}
-					/>
-				</AppContext.Provider>,
-				this.containerEl.children[i]
-			);
-			}
-	let { containerEl } = this;
-	containerEl.createEl("h1", { text: "Heading 1" });
-	*/
+			<div><Week/></div>, 
+		], this.containerEl.children[1].createEl("div"));
 	}
-
 	async onClose() {
-		//ReactDOM.unmountComponentAtNode(this.containerEl.children[1]);
+		ReactDOM.unmountComponentAtNode(this.containerEl.children[1]);
 	}
 }
 function initialize_task_data(file_path : string){
@@ -81,7 +140,7 @@ function initialize_task_data(file_path : string){
     //this intializes data.json
     //let json_path = path.normalize("\\.obsidian\\plugins\\React_task_manager\\data.json")
     process.chdir(this.app.vault.adapter.basePath);
-    let data_string = fs.readFileSync(file_path, 'utf8')//may break
+    let data_string = "{}"//may break
 
     let data = JSON.parse(data_string);
     
@@ -95,8 +154,7 @@ function initialize_task_data(file_path : string){
             
             if ("task" in yaml_content) //checks if there is a task yaml header in yaml_content
             {   
-                
-                
+
                 data[files[i].basename] = yaml_content;
             }
         }
@@ -105,4 +163,24 @@ function initialize_task_data(file_path : string){
     
     fs.writeFileSync(file_path, data_string);
 
+}
+
+
+const header_style = {
+	content : {
+		left:"15px",
+		top : "0",
+		textAlign: "center",
+		width : "300px",
+		padding: "30px 0",
+		position : "fixed",
+		backgroundColor : "var(--background-secondary)"
+
+	}as React.CSSProperties,
+}
+const test_style = {
+	content : {
+		color : "Green"
+
+	}
 }
