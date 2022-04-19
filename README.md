@@ -16,19 +16,19 @@ The goal of this plugin is to add task managing to obsidian
 
 ### How to use
 
-- To add a task to your vault, use control+t (hotkeys can be modified in plugin options)
-- This will bring up a menu allowing you to create a task
+- To add a task to your vault, open the create-task modal (hotkeys can be modified in plugin options)
+- input task data
 - These tasks will then exist as normal .md notes on your vault
 - The task information lives in the YAML header of the note, so feel free to transform current notes into tasks
-- To interact with the task, open up a view by clicking on the plugin icon on the left ribbon bar
-- Drag tasks to change time and date, click to change other attributes
-- To make a personal task groups to view, go to task options and click 'create task group' and 'create task view'
+- To view your tasks in a schedule, open up a view by clicking on the calendar icon on the left ribbon bar
 
 ### Manually installing the plugin
 
-- Create a new directory in your plugins folder `YOURVAULT/.obsidian/plugins/React_task_manager/`.
-- Copy over `main.js`, `styles.css`, `manifest.json` 
-
+- download the latest release as a .zip file
+- go to /YOURVAULT/.obsidian/plugins (if plugins folder doesn't exist, create it)
+- extract zip file into the plugins folder
+- go to community plugins tab and allow the plugin
+- if you do not see the plugin, you may need to first install a plugin off of the community plugins tab
 
 ### API Documentation for obsidian
 
