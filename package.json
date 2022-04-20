@@ -1,0 +1,36 @@
+{
+	"name": "obsidian-task-manager",
+	"version": "1.0.1",
+	"description": "",
+	"main": "main.js",
+	"scripts": {
+		"dev": "node esbuild.config.mjs",
+		"build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
+		"version": "node version-bump.mjs && git add manifest.json versions.json"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "MIT",
+	"devDependencies": {
+		"@types/node": "^16.11.6",
+		"@types/react": "^17.0.42",
+		"@types/react-dom": "^17.0.14",
+		"@types/styled-components": "^5.1.25",
+		"@typescript-eslint/eslint-plugin": "^5.2.0",
+		"@typescript-eslint/parser": "^5.2.0",
+		"builtin-modules": "^3.2.0",
+		"esbuild": "0.13.12",
+		"obsidian": "latest",
+		"tslib": "2.3.1",
+		"typescript": "4.4.4"
+	},
+	"dependencies": {
+		"front-matter": "^4.0.2",
+		"js-yaml": "^4.1.0",
+		"moment": "^2.29.1",
+		"react": "^17.0.2",
+		"react-dom": "^17.0.2",
+		"styled-components": "^5.3.5",
+		"yaml": "^1.10.2"
+	}
+}
