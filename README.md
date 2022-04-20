@@ -24,9 +24,10 @@ The goal of this plugin is to add task managing to obsidian
 
 ### Manually installing the plugin
 
-- download the latest release as a .zip file
+- download the code as a zip file from the master branch
 - go to /YOURVAULT/.obsidian/plugins (if plugins folder doesn't exist, create it)
 - extract zip file into the plugins folder
+- the plugin folder MUST be named obsidian-task-manager-master
 - go to community plugins tab and allow the plugin
 - if you do not see the plugin, you may need to first install a plugin off of the community plugins tab
 
